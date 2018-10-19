@@ -32,6 +32,7 @@
     "chokidar": "^1.7.0",
     "debug": "^2.6.8",
     "fs-extra": "^4.0.0",
+    "generator-keendoo": "github:nicolaschaillot/generator-keendoo#master",
     "global-tunnel-ng": "^2.1.0",
     "is-windows": "^1.0.1",
     "isarray": "^2.0.2",
