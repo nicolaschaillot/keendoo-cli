@@ -1,17 +1,15 @@
 const debug = require('debug')('keendoo:cli:migrate');
 const fs = require('fs-extra');
 const path = require('path');
-const pathResolver = require('./synchronize_lib/path_resolver');
+const pathResolver = require('./migrate_lib/path_resolver');
 const isArray = require('isarray');
-const containsChild = require('./synchronize_lib/path_child_finder').containsChild;
+const containsChild = require('./migrate_lib/path_child_finder').containsChild;
 const chalk = require('chalk');
 const padr = require('pad-right');
 const truncate = pathResolver.truncate;
 const dir = require('node-dir');
 const xml2js = require('xml2js');
-const mustache = require('mustache');
-
-const layoutTemplate = 'templates/layouts-templates/keendoo-document-section-layout-template.html';
+const LayoutResolver = require('./migrate_lib/layout_resolver.js');
 
 class Converter {
 
@@ -77,20 +75,12 @@ class Converter {
         }
       }
     );
-
-    //console.log('Migration complete :-)');
   }
 
   resolveAction(event, fileName) {
     // unlink, unlinkDir
     if (event.startsWith('parseTab')) {
       return new ParseTabTrigger(fileName);
-    // } else
-    // if (['change', 'add'].indexOf(event) >= 0) {
-    //   return new CopyTrigger(filePath, this.computeDestination(filePath));
-    // } else
-    // if (event === 'addDir') {
-    //   return new MkdirTrigger(this.computeDestination(filePath));
     } else {
       debug(`Unhandled event: ${event}`);
     }
@@ -139,27 +129,14 @@ class Tab {
   process() {
     console.log(`. Adding WebUI Sections for document type "${this.docType}" from tab id "${this.tabObject.tab.$.id}"`);
 
-    // TODO : export to destination folder
-    this.baseProject = path.join(process.cwd(), 'results');
+    // Create a new layout resolver
+    const layoutResolver = new LayoutResolver(this.tabObject, this.docType);
 
-    // mustache.parse(layoutTemplate);
-    const templateFile = fs.readFileSync(layoutTemplate, 'utf8');
-
-    const templateData = {
-      creationDate: new Date(),
-      layoutname: `keendoo-${this.docType}-${this.tabObject.tab.$.id.toLowerCase()}-view-layout`,
-    };
-
-    const html = mustache.to_html(templateFile, templateData);
-    // var rendered = mustache.render(layoutTemplate, {layoutname: `keendoo-${this.docType}-${this.tabObject.tab.$.id.toLowerCase()}-view-layout`});
-
-    const htmlFileName = path.join(this.baseProject, `keendoo-${this.docType}-${this.tabObject.tab.$.id.toLowerCase()}-view-layout.html`);
-
-    fs.removeSync(htmlFileName);
-    fs.writeFileSync(htmlFileName, html);
+    // Write new html component in destination directory
+    fs.removeSync(layoutResolver.htmlFileName);
+    fs.writeFileSync(layoutResolver.htmlFileName, layoutResolver.renderHtml());
 
     console.log('..... Done');
-    //console.log(`---->${this.tabObject} : ${this.docType}`);
   }
 }
 
@@ -201,9 +178,7 @@ module.exports = {
   command: 'migrate',
   desc: 'Studio JSF to WebUI migration tool',
   handler: function (argv) {
-    //require('../lib/analytics').event('keendoo:synchronize', argv._.slice(1).join(' '));
     debug('Argv: %O', argv);
-
     const c = new Converter(argv.dest, argv.src, argv.pattern);
     debug('%O', c);
     return c.run.apply(c);
@@ -215,7 +190,7 @@ module.exports = {
         src: pathResolver.src(),
         dest: pathResolver.dest(),
         pattern: {
-          describe: 'Glob matching pattern for synchronizable files',
+          describe: 'Glob matching pattern for migration',
           default: Converter.GLOB
         }
       }).coerce(['src', 'dest'], Converter.coerce);
