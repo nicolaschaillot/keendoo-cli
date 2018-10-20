@@ -7,6 +7,7 @@ const containsChild = require('./synchronize_lib/path_child_finder').containsChi
 const chalk = require('chalk');
 const padr = require('pad-right');
 const truncate = pathResolver.truncate;
+const dir = require('node-dir');
 
 class Converter {
 
@@ -52,20 +53,53 @@ class Converter {
 
   startConverter() {
     console.log(`Start analyzing TABS from "${chalk.blue(truncate(this.src))}"`);
-    
-    // this.converters.main = chokidar.watch(this.src, {
-    //   awaitWriteFinish: true
-    // });
+    console.log(this.tabPattern);
+    // Parse TAB xml files
+    dir.readFiles(`${this.src}/.metadata`,
+      {
+        match: /.tab.xml$/,
+        exclude: /^\./
+      }, function (err, content, filename, next) {
+        if (err) {
+          throw err;
+        }
+        console.log(`Processing TAB : ${filename} ...`);
+        this.triggerAction('parseTab', filename);
+        next();
+      }.bind(this),
+      function (err) {
+        if (err) {
+          throw err;
+        }
+        //console.log('finished reading files:', files);
+      }
+    );
 
-    // this.watchers.main.on('all', function (event, filePath) { //function needed to access arguments.
-    //   debug('%O', arguments);
-    //   if (!this.handledFile(event, filePath)) {
-    //     debug(`Unhandled event "${event}" or file "${filePath}"`);
-    //     return;
-    //   }
-    //   this.triggerAction(event, filePath);
-    // }.bind(this));
-    console.log('Migration complete :-)');
+    //console.log('Migration complete :-)');
+  }
+
+  resolveAction(event, fileName) {
+    // unlink, unlinkDir
+    if (event.startsWith('parseTab')) {
+      return new ParseTabTrigger(fileName);
+    // } else
+    // if (['change', 'add'].indexOf(event) >= 0) {
+    //   return new CopyTrigger(filePath, this.computeDestination(filePath));
+    // } else
+    // if (event === 'addDir') {
+    //   return new MkdirTrigger(this.computeDestination(filePath));
+    } else {
+      debug(`Unhandled event: ${event}`);
+    }
+
+    return undefined;
+  }
+
+  triggerAction(event, fileName) {
+    const a = this.resolveAction(event, fileName);
+    if (a) {
+      a.trigger();
+    }
   }
 
   run() {
@@ -76,6 +110,35 @@ class Converter {
     }, 5);
   }
 }
+class ActionTrigger {
+  trigger() {
+    debug('Not overrided method!');
+  }
+
+  debug() {
+    debug('New action registered: %O', this);
+  }
+
+  get displaySrc() {
+    return truncate(this.source);
+  }
+
+  get displayDest() {
+    return truncate(this.destination);
+  }
+}
+class ParseTabTrigger extends ActionTrigger {
+  constructor(fileName) {
+    super();
+    this.fileName = fileName;
+    this.debug();
+  }
+
+  trigger() {
+    console.log(this.fileName);
+    //fs.removeSync(this.destination);
+  }
+}
 
 module.exports = {
   command: 'migrate',
@@ -83,7 +146,7 @@ module.exports = {
   handler: function (argv) {
     //require('../lib/analytics').event('keendoo:synchronize', argv._.slice(1).join(' '));
     debug('Argv: %O', argv);
-    
+
     const c = new Converter(argv.dest, argv.src, argv.pattern);
     debug('%O', c);
     return c.run.apply(c);
@@ -102,8 +165,6 @@ module.exports = {
   },
   Converter: Converter,
   Triggers: {
-    //Copy: CopyTrigger,
-    //Unlink: UnlinkTrigger,
-    //Mkdirp: MkdirTrigger
+    ParseTab: ParseTabTrigger,
   }
 };
