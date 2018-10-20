@@ -17,15 +17,27 @@ class LayoutResolver {
     return fs.readFileSync(layoutTemplate, 'utf8');
   }
 
-  get templateData() {
-    return {
-      creationDate: new Date(),
-      layoutname: `keendoo-${this.docType}-${this.tabObject.tab.$.id.toLowerCase()}-view-layout`,
-    };
+  get docTypeToLower() {
+    return this.docType.toLowerCase();
   }
 
   get htmlFileName() {
-    return path.join(this.baseProject, `keendoo-${this.docType}-${this.tabObject.tab.$.id.toLowerCase()}-view-layout.html`);
+    return path.join(this.baseProject, `${this.layoutName}.html`);
+  }
+
+  get layoutName() {
+    return `keendoo-${this.docTypeToLower}-${this.tabIdToLower}-view-layout`;
+  }
+
+  get templateData() {
+    return {
+      creationDate: new Date(),
+      layoutname: this.layoutName,
+    };
+  }
+
+  get tabIdToLower() {
+    return this.tabObject.tab.$.id.toLowerCase();
   }
 
   renderHtml() {
