@@ -8,7 +8,7 @@ const chalk = require('chalk');
 const padr = require('pad-right');
 const truncate = pathResolver.truncate;
 const dir = require('node-dir');
-
+const xml2js = require('xml2js');
 class Converter {
 
   constructor(dest = '', src = '', pattern = Converter.GLOB) {
@@ -57,7 +57,7 @@ class Converter {
     // Parse TAB xml files
     dir.readFiles(`${this.src}/.metadata`,
       {
-        match: /.tab.xml$/,
+        match: /kRMDescrTab.tab.xml$/,
         exclude: /^\./
       }, function (err, content, filename, next) {
         if (err) {
@@ -127,6 +127,23 @@ class ActionTrigger {
     return truncate(this.destination);
   }
 }
+
+class Tab {
+  constructor(tabObject, docType) {
+    this.tabObject = tabObject;
+    this.docType = docType;
+  }
+  process() {
+    console.log(`. Adding WebUI Sections for document type "${this.docType}" from tab id "${this.tabObject.tab.$.id}"`);
+    // TODO : export to destination folder 
+    this.baseProject = path.join(process.cwd(), 'results');
+    fs.writeFileSync(path.join(this.baseProject, `keendoo-${this.docType}-${this.tabObject.tab.$.id.toLowerCase()}-view-layout.html`), 'dummy-content');
+
+    console.log('..... Done');
+    //console.log(`---->${this.tabObject} : ${this.docType}`);
+  }
+}
+
 class ParseTabTrigger extends ActionTrigger {
   constructor(fileName) {
     super();
@@ -135,8 +152,29 @@ class ParseTabTrigger extends ActionTrigger {
   }
 
   trigger() {
-    console.log(this.fileName);
-    //fs.removeSync(this.destination);
+    const parser = new xml2js.Parser({normalize: true});
+    fs.readFile(this.fileName, function(err, data) {
+      parser.parseString(data, function (error, result) {
+        // TODO - Replace with nested Array.map()
+        const rules = result.tab.action[0].rules;
+        rules.forEach(function(rule) {
+          const subRules = rule.rules;
+          subRules.forEach(function(subRule) {
+            const subSubRules = subRule['org.nuxeo.studio.client.modules.action.RuleModel']; 
+            subSubRules.forEach(function(subSubRule) {
+              if (subSubRule.key.includes('hasType')) {
+                subSubRule.value.forEach(function(types) {
+                  // types contains a list of types comma separated
+                  types.split(',').map(function(docType) {
+                    new Tab(result, docType).process();
+                  });
+                });
+              }
+            });
+          });
+        });
+      });
+    });
   }
 }
 
