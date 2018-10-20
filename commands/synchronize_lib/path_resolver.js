@@ -24,7 +24,7 @@ class PathResolver {
   }
 
   computeSource() {
-    let targetPath = '/tmp/watcher/src';
+    let targetPath = '/tmp/studio/.metadata';
     const appXml = parentPath('application.xml');
     debug('application.xml file path: %O from cwd: %O', appXml, process.cwd());
     if (appXml && fs.pathExistsSync(path.join(appXml, 'studio'))) {
@@ -49,7 +49,7 @@ class PathResolver {
   }
 
   computeDestination() {
-    let targetPath = '/tmp/watcher/dest';
+    let targetPath = '/tmp/migrationresult/document';
     const yoConf = parentPath('.yo-rc.json');
     debug(`yo-rc file path: "${yoConf}" from cwd: "${process.cwd()}"`);
     if (yoConf) {
