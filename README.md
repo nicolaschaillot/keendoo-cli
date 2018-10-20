@@ -1,4 +1,4 @@
-![Alt text](/screenshot.jpg?raw=true "keendoo-cli")
+![Alt text](/screenshot.png?raw=true "keendoo-cli")
 
 # About
 
