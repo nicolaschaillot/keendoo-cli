@@ -127,16 +127,9 @@ class Tab {
     this.docType = docType;
   }
   process() {
-    console.log(`. Adding WebUI Sections for document type "${this.docType}" from tab id "${this.tabObject.tab.$.id}"`);
-
     // Create a new layout resolver
     const layoutResolver = new LayoutResolver(this.tabObject, this.docType);
-
-    // Write new html component in destination directory
-    fs.removeSync(layoutResolver.htmlFileName);
-    fs.writeFileSync(layoutResolver.htmlFileName, layoutResolver.renderHtml());
-
-    console.log('..... Done');
+    layoutResolver.process();
   }
 }
 

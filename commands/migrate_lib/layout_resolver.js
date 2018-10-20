@@ -11,6 +11,7 @@ class LayoutResolver {
     this.docType = docType;
     // TODO : export to destination folder
     this.baseProject = path.join(process.cwd(), 'results');
+    this.checkDirectories();
   }
 
   get layoutTemplateFile() {
@@ -22,7 +23,15 @@ class LayoutResolver {
   }
 
   get htmlFileName() {
-    return path.join(this.baseProject, `${this.layoutName}.html`);
+    return path.join(this.baseProject, 'document', this.docTypeToLower, `${this.layoutName}.html`);
+  }
+
+  get layoutDocumentDirectory() {
+    return path.join(this.baseProject, 'document', this.docTypeToLower);
+  }
+
+  get rootLayoutDocumentDirectory() {
+    return path.join(this.baseProject, 'document');
   }
 
   get layoutName() {
@@ -33,11 +42,29 @@ class LayoutResolver {
     return {
       creationDate: new Date(),
       layoutname: this.layoutName,
+      templatecontent: 'foo content'
     };
   }
 
   get tabIdToLower() {
     return this.tabObject.tab.$.id.toLowerCase();
+  }
+
+  checkDirectories() {
+    // Ensures that the root document type directory exists
+    fs.ensureDirSync(this.rootLayoutDocumentDirectory);
+    // Ensures that the document type directory exists
+    fs.ensureDirSync(this.layoutDocumentDirectory);
+  }
+
+  process() {
+    console.log(`. Adding WebUI Sections for document type "${this.docType}" from tab id "${this.tabObject.tab.$.id}"`);
+
+    // Write new html component in destination directory
+    fs.removeSync(this.htmlFileName);
+    fs.writeFileSync(this.htmlFileName, this.renderHtml());
+
+    console.log('∞∞∞∞∞ Done');
   }
 
   renderHtml() {
