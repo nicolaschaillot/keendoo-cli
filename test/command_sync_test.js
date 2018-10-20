@@ -4,7 +4,7 @@ const tmp = require('tmp');
 const path = require('path');
 const fs = require('fs-extra');
 const _ = require('lodash');
-const debug = require('debug')('nuxeo:test');
+const debug = require('debug')('keendoo:test');
 const isArray = require('isarray');
 
 describe('Synchronization Command', function () {

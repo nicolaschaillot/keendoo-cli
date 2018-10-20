@@ -1,5 +1,5 @@
 const chokidar = require('chokidar');
-const debug = require('debug')('nuxeo:cli:sync');
+const debug = require('debug')('keendoo:cli:sync');
 const fs = require('fs-extra');
 const path = require('path');
 const chalk = require('chalk');
@@ -217,7 +217,7 @@ module.exports = {
   command: 'sync',
   desc: 'Web Resources Folder Synchronization',
   handler: function (argv) {
-    require('../lib/analytics').event('nuxeo:synchronize', argv._.slice(1).join(' '));
+    require('../lib/analytics').event('keendoo:synchronize', argv._.slice(1).join(' '));
     debug('Argv: %O', argv);
 
     const w = new Watcher(argv.dest, argv.src, argv.pattern);

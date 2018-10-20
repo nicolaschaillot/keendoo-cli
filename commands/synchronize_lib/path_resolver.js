@@ -1,6 +1,6 @@
 const parentPath = require('parentpath').sync;
 const path = require('path');
-const debug = require('debug')('nuxeo:cli:sync:lib:resolve');
+const debug = require('debug')('keendoo:cli:sync:lib:resolve');
 const fs = require('fs-extra');
 
 class PathResolver {

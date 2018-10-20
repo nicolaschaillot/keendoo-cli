@@ -51,7 +51,7 @@ class UpdateCmd {
     return 'Update Keendoo CLI to get latest features.';
   }
   handler(argv, targetPath) {
-    require('../lib/analytics').event('nuxeo:update', argv._.slice(1).join(' '));
+    require('../lib/analytics').event('keendoo:update', argv._.slice(1).join(' '));
 
     const root = targetPath || path.join(__dirname, '..');
     if (!UpdateCmd.hasWriteAccess(root)) {

@@ -1,6 +1,6 @@
 const isArray = require('isarray');
 const _ = require('lodash');
-const debug = require('debug')('nuxeo:cli:sync:lib:finder');
+const debug = require('debug')('keendoo:cli:sync:lib:finder');
 const path = require('path');
 
 class ChildFinder {

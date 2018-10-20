@@ -1,21 +1,21 @@
 {
   "name": "keendoo-cli",
   "version": "1.0.0-0",
-  "description": "Keendoo CLI is a command-line interface for helping developers around Nuxeo ecosystem.",
+  "description": "Keendoo CLI is a command-line interface for helping developers around Keendoo ecosystem.",
   "main": "./bin/keendoo-cli.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/nicolaschaillot/keendoo-cli"
   },
   "scripts": {
-    "dev": "rm -rf $PWD/node_modules/generator-nuxeo && ln -s $PWD/../generator-nuxeo $PWD/node_modules/generator-nuxeo",
+    "dev": "",
     "test": "mocha --timeout 5000 -u tdd",
     "clean": "rimraf coverage/ test-results.xml .nyc*",
     "prereport": "nyc npm test -- --reporter mocha-junit-reporter",
     "report": "nyc report",
     "coverage": "npm run report -- --reporter=cobertura",
-    "preversion": "rm -rf node_modules package-lock.json && npm install --save generator-nuxeo@* && npm install && git add -f package-lock.json",
-    "postversion": "npm publish && git rm -f package-lock.json && npm version --ignore-scripts --no-git-tag-version prepatch && npm install --save nuxeo/generator-nuxeo#master && git commit -am \"Post release ${npm_package_version}\" && git push && git push --tags"
+    "preversion": "rm -rf node_modules package-lock.json && npm install && git add -f package-lock.json",
+    "postversion": "npm publish && git rm -f package-lock.json && npm version --ignore-scripts --no-git-tag-version prepatch && git commit -am \"Post release ${npm_package_version}\" && git push && git push --tags"
   },
   "keywords": [
     "keendoo",
@@ -49,7 +49,7 @@
     "yeoman-environment": "^2.0.0"
   },
   "bin": {
-    "nuxeo": "./bin/keendoo-cli.js"
+    "keendoo": "./bin/keendoo-cli.js"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
