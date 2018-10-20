@@ -9,6 +9,10 @@ const padr = require('pad-right');
 const truncate = pathResolver.truncate;
 const dir = require('node-dir');
 const xml2js = require('xml2js');
+const mustache = require('mustache');
+
+const layoutTemplate = 'templates/layouts-templates/keendoo-document-section-layout-template.html';
+
 class Converter {
 
   constructor(dest = '', src = '', pattern = Converter.GLOB) {
@@ -71,7 +75,6 @@ class Converter {
         if (err) {
           throw err;
         }
-        //console.log('finished reading files:', files);
       }
     );
 
@@ -135,9 +138,25 @@ class Tab {
   }
   process() {
     console.log(`. Adding WebUI Sections for document type "${this.docType}" from tab id "${this.tabObject.tab.$.id}"`);
-    // TODO : export to destination folder 
+
+    // TODO : export to destination folder
     this.baseProject = path.join(process.cwd(), 'results');
-    fs.writeFileSync(path.join(this.baseProject, `keendoo-${this.docType}-${this.tabObject.tab.$.id.toLowerCase()}-view-layout.html`), 'dummy-content');
+
+    // mustache.parse(layoutTemplate);
+    const templateFile = fs.readFileSync(layoutTemplate, 'utf8');
+
+    const templateData = {
+      creationDate: new Date(),
+      layoutname: `keendoo-${this.docType}-${this.tabObject.tab.$.id.toLowerCase()}-view-layout`,
+    };
+
+    const html = mustache.to_html(templateFile, templateData);
+    // var rendered = mustache.render(layoutTemplate, {layoutname: `keendoo-${this.docType}-${this.tabObject.tab.$.id.toLowerCase()}-view-layout`});
+
+    const htmlFileName = path.join(this.baseProject, `keendoo-${this.docType}-${this.tabObject.tab.$.id.toLowerCase()}-view-layout.html`);
+
+    fs.removeSync(htmlFileName);
+    fs.writeFileSync(htmlFileName, html);
 
     console.log('..... Done');
     //console.log(`---->${this.tabObject} : ${this.docType}`);
@@ -160,7 +179,7 @@ class ParseTabTrigger extends ActionTrigger {
         rules.forEach(function(rule) {
           const subRules = rule.rules;
           subRules.forEach(function(subRule) {
-            const subSubRules = subRule['org.nuxeo.studio.client.modules.action.RuleModel']; 
+            const subSubRules = subRule['org.nuxeo.studio.client.modules.action.RuleModel'];
             subSubRules.forEach(function(subSubRule) {
               if (subSubRule.key.includes('hasType')) {
                 subSubRule.value.forEach(function(types) {
