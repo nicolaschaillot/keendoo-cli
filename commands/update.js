@@ -48,7 +48,7 @@ class UpdateCmd {
     return 'update';
   }
   get describe() {
-    return 'Update Nuxeo CLI to get latest features.';
+    return 'Update Keendoo CLI to get latest features.';
   }
   handler(argv, targetPath) {
     require('../lib/analytics').event('nuxeo:update', argv._.slice(1).join(' '));
