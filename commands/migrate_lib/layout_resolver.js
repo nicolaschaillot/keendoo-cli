@@ -1,7 +1,11 @@
 const fs = require('fs-extra');
 const mustache = require('mustache');
 const path = require('path');
+const chalk = require('chalk');
 
+const d1 = chalk.hex('11b287');
+const d2 = chalk.hex('1bf7bc');
+const d3 = chalk.hex('9cd4e2');
 const layoutTemplate = 'templates/layouts-templates/keendoo-document-section-layout-template.html';
 
 class LayoutResolver {
@@ -58,13 +62,14 @@ class LayoutResolver {
   }
 
   process() {
-    console.log(`. Adding WebUI Sections for document type "${this.docType}" from tab id "${this.tabObject.tab.$.id}"`);
+    const startMess = `∞ Adding WebUI Sections for document type "${this.docType}" from tab id "${this.tabObject.tab.$.id}"`;
+    console.log(d3(startMess));
 
     // Write new html component in destination directory
     fs.removeSync(this.htmlFileName);
     fs.writeFileSync(this.htmlFileName, this.renderHtml());
 
-    console.log('∞∞∞∞∞ Done');
+    console.log(`${d1('∞∞∞∞∞')} ${d2(this.docType)} ${d1('Done')}`);
   }
 
   renderHtml() {
